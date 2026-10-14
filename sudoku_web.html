@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudoku — Rèn luyện tư duy</title>
+<style>
+:root{--bg:#071322;--panel:#0d1c30;--panel2:#10233a;--line:#29415f;--line2:#45658d;--text:#e8f1ff;--muted:#9bb2d2;--blue:#1478ff;--blue2:#0756c8;--green:#2cc78a;--red:#ff6b78;--yellow:#ffca68}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#112642 0,#071322 55%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid #203955;background:#081526eF;position:sticky;top:0;z-index:5}
+.logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1884ff,#0756c8);display:grid;place-items:center;font-size:25px;box-shadow:0 7px 22px #006aff35}
+.brand{font-size:25px;font-weight:800;line-height:1.15}.subtitle{color:var(--muted);font-size:13px}.headright{margin-left:auto;display:flex;gap:8px;align-items:center}.smallbtn,.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;padding:10px 12px;cursor:pointer;font:inherit;transition:.15s}.smallbtn:hover,.btn:hover{border-color:#4f8fdf;background:#173252}.btn.primary{background:linear-gradient(120deg,var(--blue),var(--blue2));border-color:#2084ff;font-weight:700}.btn.active{outline:2px solid var(--blue);background:#103e73}.layout{max-width:1600px;margin:auto;padding:18px;display:grid;grid-template-columns:255px minmax(330px,1fr) 270px;gap:16px;align-items:start}
+.panel{background:linear-gradient(155deg,#0d1c30f7,#091729f7);border:1px solid #1c3552;border-radius:12px;padding:15px;margin-bottom:14px;box-shadow:0 10px 28px #00000012}.panel h2,.panel h3{margin:0 0 12px;font-size:16px}.muted{color:var(--muted)}.mode{display:flex;gap:10px;align-items:center;text-align:left;width:100%;margin:5px 0;padding:11px;border:1px solid transparent;background:transparent;border-radius:9px;color:var(--text);cursor:pointer}.mode .ico{font-size:22px;width:28px;text-align:center}.mode small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.mode.selected{background:linear-gradient(110deg,#0868e5,#0c3f82);border-color:#207cff}.mode:hover:not(.selected){background:#142941}
+.diff{display:flex;gap:9px;align-items:flex-start;padding:7px 2px;cursor:pointer}.diff input{accent-color:var(--blue);margin-top:5px;width:17px;height:17px}.diff small{display:block;color:var(--muted);font-size:12px}.switchrow{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13px;color:#c6d7ee}.switchrow input{accent-color:var(--blue)}.full{width:100%;margin-top:8px}
+.game{padding:0;overflow:hidden}.gamehead{padding:14px 17px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}.puzzleid{font-weight:700}.timer{margin-left:auto;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}.gamehead .smallbtn{padding:8px 10px}.boardwrap{padding:18px 18px 10px}.board{width:min(100%,680px);aspect-ratio:1;margin:auto;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));border:2px solid var(--line2);border-radius:5px;overflow:hidden;background:#0b1828}
+.cell{position:relative;min-width:0;min-height:0;display:grid;place-items:center;border:0;border-right:1px solid #314966;border-bottom:1px solid #314966;background:#0b1929;color:#e9f2ff;font-size:clamp(17px,2.3vw,30px);font-weight:600;cursor:pointer;padding:0;border-radius:0}
+.cell:nth-child(3n){border-right:2px solid var(--line2)}.cell:nth-child(9n){border-right:0}.cell:nth-child(n+19):nth-child(-n+27),.cell:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid var(--line2)}.cell:nth-child(n+73){border-bottom:0}
+.cell.given{color:#d9e8ff;background:#102238;font-weight:800;cursor:default}.cell.selected{background:#1258a3!important;box-shadow:inset 0 0 0 2px #39a0ff;z-index:1}.cell.peer{background:#142d49}.cell.same{background:#193b5e}.cell.error{background:#642a3c!important;color:#ffdce0}.cell.hinted{background:#315b31!important}.cell .notes{position:absolute;inset:2px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);font-size:clamp(7px,1vw,11px);font-weight:400;color:#80a8d8;line-height:1;pointer-events:none}.cell .notes span{display:grid;place-items:center}
+.numpad{display:grid;grid-template-columns:repeat(9,1fr);gap:7px;max-width:680px;margin:12px auto 0}.numbtn{background:#15263a;border:1px solid #2a4260;color:#edf4ff;border-radius:8px;font-size:clamp(15px,2vw,23px);font-weight:700;padding:10px 0;cursor:pointer}.numbtn:hover{background:#1b3b60;border-color:#4289dc}.tools{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;padding:10px 18px 18px}.tool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:66px;background:#101f33;border:1px solid #203854;border-radius:9px;color:var(--text);cursor:pointer;font:inherit;font-size:12px}.tool b{font-size:20px;font-weight:500}.tool.on{background:#0b3970;border-color:#1680ff}.status{max-width:680px;margin:0 auto 10px;min-height:22px;font-size:13px;color:var(--muted)}.support{display:flex;gap:10px;align-items:center;width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0b192a;color:var(--text);cursor:pointer;text-align:left;margin:8px 0}.support .ico{font-size:22px;width:28px;text-align:center;color:#83bbff}.support strong{display:block;font-size:13px}.support small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.badge{margin-left:auto;background:#126ee9;border-radius:7px;padding:2px 8px;font-weight:800}.statline{display:flex;justify-content:space-between;gap:10px;margin:12px 0;font-size:13px}.pill{background:#123d71;border-radius:7px;padding:3px 9px}.pill.green{background:#075a43;color:#9af0ca}.progress{height:7px;background:#1c314a;border-radius:10px;overflow:hidden;margin-top:6px}.progress div{height:100%;background:linear-gradient(90deg,#0877ff,#3cc8ff);width:0%;transition:width .2s}textarea{width:100%;min-height:90px;resize:vertical;background:#09182a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font:inherit}footer{text-align:center;color:var(--muted);font-size:12px;padding:0 15px 22px}dialog{background:#0d1c30;color:var(--text);border:1px solid var(--line2);border-radius:14px;max-width:440px;width:calc(100% - 28px);padding:22px}dialog::backdrop{background:#0009}.modalactions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+@media(max-width:1100px){.layout{grid-template-columns:220px minmax(300px,1fr)}.rightcol{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.rightcol .panel{margin-bottom:0}.tools{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){header{padding:10px 12px}.brand{font-size:21px}.headright .smallbtn{font-size:12px;padding:8px}.layout{display:flex;flex-direction:column;padding:10px;gap:10px}.leftcol,.game,.rightcol{width:100%}.leftcol{display:grid;grid-template-columns:1fr 1fr;gap:10px}.leftcol .panel{margin:0}.leftcol .panel:first-child{grid-column:1/-1}.rightcol{display:flex;flex-direction:column}.rightcol .panel{width:100%}.boardwrap{padding:10px 8px 4px}.cell{font-size:clamp(14px,4.3vw,25px)}.numpad{gap:4px;margin-top:8px}.numbtn{border-radius:5px;padding:8px 0}.tools{padding:8px;gap:5px}.tool{min-height:58px}.gamehead{padding:10px}.timer{font-size:16px}.puzzleid{font-size:13px}}
+</style>
+</head>
+<body>
+<header><div class="logo">▦</div><div><div class="brand">Sudoku</div><div class="subtitle">Rèn luyện tư duy – Thử thách bản thân</div></div><div class="headright"><button class="smallbtn" id="homeBtn">⌂ Trang chủ</button><button class="smallbtn" id="statsBtn">🏆 Thống kê</button><button class="smallbtn" id="settingsBtn">⚙ Cài đặt</button><button class="smallbtn" id="themeBtn" title="Đổi giao diện">☾</button></div></header>
+<main class="layout">
+<aside class="leftcol">
+<section class="panel"><h2>Chọn chế độ chơi</h2>
+<button class="mode selected" id="playMode"><span class="ico">▶</span><span><b>Chơi Sudoku</b><small>Bắt đầu một ván mới</small></span></button>
+<button class="mode" id="customMode"><span class="ico">▤</span><span><b>Tạo đề tùy chỉnh</b><small>Chọn độ khó, số lượng ô trống</small></span></button>
+<button class="mode" id="learnMode"><span class="ico">▦</span><span><b>Luyện tập kỹ thuật</b><small>Học các kỹ thuật giải Sudoku</small></span></button>
+<button class="mode" id="historyMode"><span class="ico">▦</span><span><b>Lịch sử & Thống kê</b><small>Xem tiến trình của bạn</small></span></button>
+<button class="mode" id="settingsMode"><span class="ico">⚙</span><span><b>Cài đặt</b><small>Tùy chỉnh giao diện, âm thanh...</small></span></button>
+</section>
+<section class="panel"><h3>Mức độ khó</h3>
+<label class="diff"><input type="radio" name="difficulty" value="easy"><span>Dễ<small>(30–40 ô trống)</small></span></label>
+<label class="diff"><input type="radio" name="difficulty" value="medium" checked><span>Trung bình<small>(40–50 ô trống)</small></span></label>
+<label class="diff"><input type="radio" name="difficulty" value="hard"><span>Khó<small>(50–60 ô trống)</small></span></label>
+<label class="diff"><input type="radio" name="difficulty" value="expert"><span>Chuyên gia<small>(60+ ô trống)</small></span></label>
+<div id="customBox" hidden><label for="blankRange">Số ô muốn xóa: <b id="blankLabel">45</b></label><input id="blankRange" type="range" min="30" max="64" value="45" style="width:100%;accent-color:var(--blue);margin-top:10px"></div>
+</section>
+<section class="panel"><h3>Tùy chọn khác</h3>
+<label class="switchrow"><input type="checkbox" id="uniqueOnly" checked> Đảm bảo duy nhất 1 lời giải <span title="Có thể làm sinh đề lâu hơn">ⓘ</span></label>
+<label class="switchrow"><input type="checkbox" id="autoNotes"> Tự động cập nhật ứng viên</label>
+<label class="switchrow"><input type="checkbox" id="highlightErrors" checked> Tô lỗi khi nhập số</label>
+<button class="btn primary full" id="newGame">⟳ &nbsp; Tạo đề mới</button>
+<button class="btn full" id="saveGame">▣ &nbsp; Lưu ván chơi</button>
+</section>
+</aside>
+<section class="panel game">
+<div class="gamehead"><span class="puzzleid">Ván số <span id="puzzleId">#000001</span></span><button class="smallbtn" id="copyId" title="Sao chép mã ván">▢</button><span class="timer" id="timer">◴ 00:00</span><button class="smallbtn" id="pauseBtn" title="Tạm dừng">Ⅱ</button><button class="smallbtn" id="restartBtn" title="Chơi lại">⟳</button><button class="smallbtn" id="fullBtn" title="Toàn màn hình">⛶</button></div>
+<div class="boardwrap"><div class="board" id="board" role="grid" aria-label="Bảng Sudoku"></div><div class="status" id="status" aria-live="polite">Chọn một ô rồi nhập số từ 1 đến 9.</div><div class="numpad" id="numpad"></div></div>
+<div class="tools"><button class="tool" id="pencilBtn"><b>✎</b>Bút chì</button><button class="tool" id="eraseBtn"><b>⌫</b>Xóa số</button><button class="tool" id="notesBtn"><b>▤</b>Ghi chú</button><button class="tool" id="hintBtn"><b>♧</b>Gợi ý</button><button class="tool" id="undoBtn"><b>↶</b>Hoàn tác</button><button class="tool" id="redoBtn"><b>↻</b>Làm lại</button></div>
+</section>
+<aside class="rightcol">
+<section class="panel"><h2>Công cụ hỗ trợ</h2>
+<button class="support" id="nextHint"><span class="ico">♧</span><span><strong>Gợi ý ô tiếp theo</strong><small>Hiển thị một ô có thể điền</small></span><span class="badge">?</span></button>
+<button class="support" id="checkBtn"><span class="ico">♢</span><span><strong>Kiểm tra lỗi</strong><small>Kiểm tra các lỗi vi phạm luật Sudoku</small></span></button>
+<button class="support" id="solutionBtn"><span class="ico">◉</span><span><strong>Xem đáp án</strong><small>Hiển thị lời giải hoàn chỉnh</small></span></button>
+<button class="support" id="candidatesBtn"><span class="ico">☷</span><span><strong>Đánh dấu ứng viên</strong><small>Tự động hiện các số có thể điền</small></span></button>
+<button class="support" id="countBtn"><span class="ico">⌕</span><span><strong>Đếm số lời giải</strong><small>Kiểm tra đề có bao nhiêu lời giải</small></span></button>
+</section>
+<section class="panel"><h3>Thông tin ván chơi</h3>
+<div class="statline"><span class="muted">Độ khó</span><span class="pill" id="diffInfo">Trung bình</span></div>
+<div class="statline"><span class="muted">Số ô trống ban đầu</span><b id="blankInfo">45</b></div>
+<div class="statline"><span class="muted">Lời giải</span><span class="pill green" id="solutionInfo">Duy nhất</span></div>
+<div class="statline"><span class="muted">Thời gian tốt nhất</span><b id="bestTime">--:--</b></div>
+<div class="statline"><span class="muted">Tiến trình</span><b id="progressText">0%</b></div><div class="progress"><div id="progressBar"></div></div>
+<div class="statline"><span class="muted">Lỗi hiện tại</span><b id="errorInfo">0</b></div>
+</section>
+<section class="panel"><h3>Ghi chú cá nhân</h3><textarea id="personalNotes" placeholder="Nhập ghi chú của bạn..."></textarea><button class="btn full" id="saveNotes">Lưu ghi chú</button></section>
+</aside>
+</main>
+<footer>Sudoku Web &nbsp; | &nbsp; Được tạo với ♥ cho những người yêu thích tư duy logic</footer>
+<dialog id="modal"><h2 id="modalTitle">Thông báo</h2><div id="modalBody"></div><div class="modalactions"><button class="btn" id="modalCancel">Đóng</button><button class="btn primary" id="modalOK">Đồng ý</button></div></dialog>
+<script>
+(() => {
+const $=id=>document.getElementById(id);
+const boardEl=$('board'), statusEl=$('status');
+let puzzle=[], solution=[], values=[], given=[], notes=[], selected=-1, pencil=false, autoCandidates=false, paused=false, seconds=0, timerTick=null, puzzleSerial=1, history=[], future=[], errorCells=new Set(), hinted=-1, gameStarted=true, solved=false;
+const names={easy:'Dễ',medium:'Trung bình',hard:'Khó',expert:'Chuyên gia'};
+const blanks={easy:35,medium:45,hard:55,expert:63};
+let difficulty='medium';
+function shuffled(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function candidates(g,pos){let r=Math.floor(pos/9),c=pos%9,used=new Set();for(let k=0;k<9;k++){used.add(g[r*9+k]);used.add(g[k*9+c]);}let br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;for(let y=0;y<3;y++)for(let x=0;x<3;x++)used.add(g[(br+y)*9+bc+x]);let a=[];for(let n=1;n<=9;n++)if(!used.has(n))a.push(n);return a}
+function findEmpty(g){let best=-1,opts=null;for(let i=0;i<81;i++)if(!g[i]){let a=candidates(g,i);if(!opts||a.length<opts.length){best=i;opts=a;if(a.length<=1)break}}return [best,opts]}
+function fillGrid(g){let [pos,opts]=findEmpty(g);if(pos<0)return true;for(let n of shuffled(opts)){g[pos]=n;if(fillGrid(g))return true;g[pos]=0}return false}
+function countSolutions(g,limit=2){let [pos,opts]=findEmpty(g);if(pos<0)return 1;if(!opts.length)return 0;let total=0;for(let n of opts){g[pos]=n;total+=countSolutions(g,limit-total);g[pos]=0;if(total>=limit)return total}return total}
+function makePuzzle(){
+ const g=Array(81).fill(0);fillGrid(g);solution=g.slice();
+ let target=+$('blankRange').value;
+ if(!$('customBox').hidden){}else target=blanks[difficulty];
+ let order=shuffled(Array.from({length:81},(_,i)=>i)), removed=0;
+ for(let pos of order){if(removed>=target)break;let old=g[pos];g[pos]=0;
+  if($('uniqueOnly').checked&&countSolutions(g.slice(),2)!==1)g[pos]=old;else removed++;
+ }
+ puzzle=g.slice();values=g.slice();given=g.map(v=>v!==0);notes=Array.from({length:81},()=>new Set());selected=-1;history=[];future=[];errorCells.clear();hinted=-1;solved=false;seconds=0;paused=false;gameStarted=true;
+ puzzleSerial++;$('puzzleId').textContent='#'+new Date().toISOString().slice(0,10).replaceAll('-','')+'-'+String(puzzleSerial).padStart(3,'0');
+ $('pauseBtn').textContent='Ⅱ';$('blankInfo').textContent=removed;$('diffInfo').textContent=names[difficulty];$('solutionInfo').textContent=$('uniqueOnly').checked?'Duy nhất':'Đã tạo';
+ $('bestTime').textContent=localStorage.getItem('sudoku-best-'+difficulty)||'--:--';
+ startTimer();render();updateProgress();setStatus('Đề mới đã sẵn sàng. Chúc bạn giải vui vẻ!');$('solutionInfo').className='pill green';
+}
+function snapshot(){return {values:values.slice(),notes:notes.map(s=>new Set(s)),pencil,selected}}
+function pushHistory(){history.push(snapshot());if(history.length>300)history.shift();future=[]}
+function restore(s){values=s.values.slice();notes=s.notes.map(x=>new Set(x));pencil=s.pencil;selected=s.selected;render();updateProgress();$('pencilBtn').classList.toggle('on',pencil)}
+function render(){
+ boardEl.innerHTML='';
+ for(let i=0;i<81;i++){
+  let b=document.createElement('button');b.className='cell';b.setAttribute('role','gridcell');b.setAttribute('aria-label',`Hàng ${Math.floor(i/9)+1}, cột ${i%9+1}${values[i]?', số '+values[i]:', trống'}`);b.dataset.i=i;
+  if(given[i])b.classList.add('given');
+  if(selected===i)b.classList.add('selected');
+  if(selected>=0){let r=Math.floor(selected/9),c=selected%9;if(Math.floor(i/9)===r||i%9===c||(Math.floor(Math.floor(i/9)/3)===Math.floor(r/3)&&Math.floor((i%9)/3)===Math.floor(c/3)))b.classList.add('peer');if(values[selected]&&values[i]===values[selected])b.classList.add('same')}
+  if(errorCells.has(i))b.classList.add('error');if(hinted===i)b.classList.add('hinted');
+  if(values[i])b.textContent=values[i];
+  else {let ns=new Set(notes[i]);if(autoCandidates){for(let n of candidates(values,i))ns.add(n)}if(ns.size){let box=document.createElement('div');box.className='notes';for(let n=1;n<=9;n++){let sp=document.createElement('span');sp.textContent=ns.has(n)?n:'';box.append(sp)}b.append(box)}}
+  b.addEventListener('click',()=>selectCell(i));boardEl.append(b);
+ }
+ $('pencilBtn').classList.toggle('on',pencil);$('candidatesBtn').classList.toggle('on',autoCandidates);
+}
+function selectCell(i){selected=i;render();if(given[i])setStatus('Đây là số gợi ý ban đầu, không thể sửa.');else setStatus(`Đã chọn hàng ${Math.floor(i/9)+1}, cột ${i%9+1}.`)}
+function setStatus(t,kind=''){statusEl.textContent=t;statusEl.style.color=kind==='error'?'var(--red)':kind==='ok'?'var(--green)':'var(--muted)'}
+function enterNumber(n){if(selected<0){setStatus('Hãy chọn một ô trước.');return}if(given[selected]){setStatus('Không thể thay đổi số gợi ý ban đầu.');return}pushHistory();hinted=-1;
+ if(pencil){if(values[selected])values[selected]=0;if(notes[selected].has(n))notes[selected].delete(n);else notes[selected].add(n)}
+ else {values[selected]=n;notes[selected].clear();if($('autoNotes').checked)removePeerNotes(selected,n)}
+ errorCells.clear();render();updateProgress();if($('highlightErrors').checked)checkErrors(false);
+ if(values.every((v,i)=>v===solution[i]))finishGame();
+}
+function removePeerNotes(pos,n){let r=Math.floor(pos/9),c=pos%9;for(let i=0;i<81;i++)if(Math.floor(i/9)===r||i%9===c||(Math.floor(Math.floor(i/9)/3)===Math.floor(r/3)&&Math.floor((i%9)/3)===Math.floor(c/3)))notes[i].delete(n)}
+function erase(){if(selected<0||given[selected]){setStatus('Chọn một ô bạn đã điền để xóa.');return}pushHistory();values[selected]=0;notes[selected].clear();errorCells.clear();render();updateProgress();setStatus('Đã xóa ô được chọn.')}
+function undo(){if(!history.length){setStatus('Không có thao tác để hoàn tác.');return}future.push(snapshot());restore(history.pop());setStatus('Đã hoàn tác.')}
+function redo(){if(!future.length){setStatus('Không có thao tác để làm lại.');return}history.push(snapshot());restore(future.pop());setStatus('Đã làm lại thao tác.')}
+function checkErrors(show=true){errorCells.clear();let count=0;
+ for(let i=0;i<81;i++)if(values[i]){let r=Math.floor(i/9),c=i%9;for(let j=0;j<81;j++)if(j!==i&&values[j]===values[i]&&(Math.floor(j/9)===r||j%9===c||(Math.floor(Math.floor(j/9)/3)===Math.floor(r/3)&&Math.floor((j%9)/3)===Math.floor(c/3)))){errorCells.add(i);errorCells.add(j)}}
+ count=errorCells.size;$('errorInfo').textContent=count;render();if(show){if(count)setStatus(`Phát hiện ${count} ô liên quan đến lỗi trùng số.`, 'error');else setStatus('Không có số nào vi phạm hàng, cột hoặc khối 3×3.', 'ok')}return count}
+function hint(){let pos=selected>=0&&!given[selected]&&values[selected]!==solution[selected]?selected:-1;if(pos<0)pos=values.findIndex((v,i)=>!v&&!given[i]);if(pos<0){setStatus('Không còn ô trống để gợi ý.');return}selected=pos;hinted=pos;render();setStatus(`Gợi ý: ô hàng ${Math.floor(pos/9)+1}, cột ${pos%9+1} có thể điền ${solution[pos]}.`,'ok')}
+function reveal(){if(!confirm('Hiện toàn bộ đáp án? Ván này sẽ được tính là đã xem đáp án.'))return;pushHistory();values=solution.slice();notes=Array.from({length:81},()=>new Set());render();updateProgress();setStatus('Đã hiển thị lời giải hoàn chỉnh.');}
+function candidatesView(){autoCandidates=!autoCandidates;render();setStatus(autoCandidates?'Đang hiển thị các số ứng viên hợp lệ.':'Đã tắt hiển thị ứng viên.')}
+function updateProgress(){let filled=values.filter(Boolean).length,progress=Math.round(filled/81*100);$('progressText').textContent=progress+'%';$('progressBar').style.width=progress+'%';$('errorInfo').textContent=errorCells.size;$('blankInfo').textContent=puzzle.filter(v=>!v).length}
+function startTimer(){if(timerTick)clearInterval(timerTick);timerTick=setInterval(()=>{if(!paused&&!solved){seconds++;$('timer').textContent='◴ '+fmt(seconds)}},1000)}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function finishGame(){if(solved)return;solved=true;if(timerTick)clearInterval(timerTick);let old=localStorage.getItem('sudoku-best-'+difficulty);if(!old||seconds<parseTime(old))localStorage.setItem('sudoku-best-'+difficulty,fmt(seconds));let wins=+(localStorage.getItem('sudoku-wins')||0)+1;localStorage.setItem('sudoku-wins',wins);$('bestTime').textContent=localStorage.getItem('sudoku-best-'+difficulty);setStatus('🎉 Tuyệt vời! Bạn đã giải xong Sudoku trong '+fmt(seconds)+'.','ok');showModal('Hoàn thành Sudoku!',`Bạn đã giải đúng toàn bộ bảng trong <b>${fmt(seconds)}</b>.<br><br>Số ván thắng được lưu trên thiết bị: <b>${wins}</b>.`,'Chơi ván mới',()=>makePuzzle())}
+function parseTime(s){let a=s.split(':').map(Number);return a[0]*60+a[1]}
+function showModal(title,body,ok='Đồng ý',fn=null){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalOK').textContent=ok;$('modalOK').onclick=()=>{ $('modal').close();if(fn)fn()};$('modalCancel').onclick=()=>$('modal').close();$('modal').showModal()}
+function saveGame(){let data={puzzle,solution,values,given,notes:notes.map(s=>[...s]),difficulty,seconds,puzzleSerial};localStorage.setItem('sudoku-save',JSON.stringify(data));setStatus('Đã lưu ván chơi trên trình duyệt.','ok')}
+function loadGame(){try{let d=JSON.parse(localStorage.getItem('sudoku-save'));if(!d)return false;puzzle=d.puzzle;solution=d.solution;values=d.values;given=d.given;notes=d.notes.map(a=>new Set(a));difficulty=d.difficulty;seconds=d.seconds;puzzleSerial=d.puzzleSerial;selected=-1;history=[];future=[];solved=false;document.querySelector(`input[name="difficulty"][value="${difficulty}"]`).checked=true;$('puzzleId').textContent='#ĐÃ-LƯU-'+String(puzzleSerial).padStart(3,'0');$('diffInfo').textContent=names[difficulty];startTimer();render();updateProgress();$('timer').textContent='◴ '+fmt(seconds);setStatus('Đã khôi phục ván chơi đã lưu.');return true}catch(e){return false}}
+function showStats(){let wins=localStorage.getItem('sudoku-wins')||0;let best=Object.keys(names).map(k=>`<div class="statline"><span>${names[k]}</span><b>${localStorage.getItem('sudoku-best-'+k)||'--:--'}</b></div>`).join('');showModal('Lịch sử & thống kê',`<p>🏆 Số ván thắng đã lưu: <b>${wins}</b></p><h3>Thời gian tốt nhất</h3>${best}<p class="muted">Dữ liệu được lưu trong trình duyệt trên thiết bị này.</p>`)}
+function learn(){showModal('Kỹ thuật giải Sudoku',`<b>1. Quét đơn (Naked Single)</b><p>Nếu một ô chỉ còn đúng một ứng viên, điền số đó.</p><b>2. Ô đơn ẩn (Hidden Single)</b><p>Nếu một số chỉ có thể nằm ở một ô trong một hàng, cột hoặc khối 3×3, điền số đó.</p><b>3. Cặp đôi (Naked Pair)</b><p>Nếu hai ô trong cùng vùng có đúng cùng hai ứng viên, loại hai số đó khỏi các ô còn lại trong vùng.</p><b>4. X-Wing</b><p>Dùng vị trí lặp theo hai hàng và hai cột để loại ứng viên.</p><p class="muted">Dùng nút “Đánh dấu ứng viên” để luyện tập trên bảng hiện tại.</p>`)}
+function custom(){ $('customBox').hidden=!$('customBox').hidden;$('customMode').classList.toggle('selected',!$('customBox').hidden);if(!$('customBox').hidden)setStatus('Chọn số ô trống rồi bấm Tạo đề mới.');}
+function chooseDifficulty(){difficulty=document.querySelector('input[name="difficulty"]:checked').value;$('diffInfo').textContent=names[difficulty]}
+function keyHandler(e){if($('modal').open)return;if(e.key>='1'&&e.key<='9'){e.preventDefault();enterNumber(+e.key)}else if(e.key==='Backspace'||e.key==='Delete'||e.key==='0'){e.preventDefault();erase()}else if(e.key==='ArrowUp'||e.key==='ArrowDown'||e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();if(selected<0)selected=0;else{let r=Math.floor(selected/9),c=selected%9;if(e.key==='ArrowUp')r=(r+8)%9;if(e.key==='ArrowDown')r=(r+1)%9;if(e.key==='ArrowLeft')c=(c+8)%9;if(e.key==='ArrowRight')c=(c+1)%9;selected=r*9+c}render()}else if(e.key.toLowerCase()==='n'){pencil=!pencil;render()}else if(e.ctrlKey&&e.key.toLowerCase()==='z'){e.preventDefault();undo()}else if(e.ctrlKey&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}}
+for(let n=1;n<=9;n++){let b=document.createElement('button');b.className='numbtn';b.textContent=n;b.addEventListener('click',()=>enterNumber(n));$('numpad').append(b)}
+$('newGame').onclick=makePuzzle;$('restartBtn').onclick=()=>{if(confirm('Chơi lại đề hiện tại? Mọi tiến trình nhập số sẽ bị xóa.')){values=puzzle.slice();notes=Array.from({length:81},()=>new Set());history=[];future=[];seconds=0;solved=false;paused=false;render();updateProgress();$('timer').textContent='◴ 00:00';setStatus('Đã khởi động lại đề.')}};$('pauseBtn').onclick=()=>{paused=!paused;$('pauseBtn').textContent=paused?'▶':'Ⅱ';if(paused)showModal('Đã tạm dừng','Bộ đếm thời gian đang tạm dừng. Đóng cửa sổ để tiếp tục.');setStatus(paused?'Đã tạm dừng đồng hồ.':'Đồng hồ đang chạy.')};
+$('pencilBtn').onclick=()=>{pencil=!pencil;render();setStatus(pencil?'Chế độ bút chì: chọn số để ghi ứng viên.':'Đã tắt chế độ bút chì.')};$('notesBtn').onclick=()=>{pencil=true;render();setStatus('Chế độ ghi chú đã bật. Chọn ô và số để ghi ứng viên.')};$('eraseBtn').onclick=erase;$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('hintBtn').onclick=hint;$('nextHint').onclick=hint;$('checkBtn').onclick=()=>checkErrors(true);$('solutionBtn').onclick=reveal;$('candidatesBtn').onclick=candidatesView;$('countBtn').onclick=()=>{let n=countSolutions(puzzle.slice(),2);$('solutionInfo').textContent=n===1?'Duy nhất':n===2?'Nhiều lời giải':'Không có lời giải';$('solutionInfo').className='pill '+(n===1?'green':'');setStatus(n===1?'Đề có đúng một lời giải.':n===2?'Đề có ít nhất hai lời giải.':'Đề hiện tại không có lời giải.');showModal('Kết quả kiểm tra',n===1?'Đề bài có <b>đúng một lời giải</b>.':n===2?'Đề bài có <b>ít nhất hai lời giải</b>.':'Đề bài không có lời giải hợp lệ.')};
+$('saveGame').onclick=saveGame;$('saveNotes').onclick=()=>{localStorage.setItem('sudoku-personal-notes',$('personalNotes').value);setStatus('Đã lưu ghi chú cá nhân.','ok')};$('personalNotes').value=localStorage.getItem('sudoku-personal-notes')||'';
+$('copyId').onclick=async()=>{try{await navigator.clipboard.writeText($('puzzleId').textContent);setStatus('Đã sao chép mã ván.','ok')}catch(e){setStatus('Mã ván: '+$('puzzleId').textContent)}};$('fullBtn').onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+$('themeBtn').onclick=()=>{let light=document.body.dataset.theme!=='light';document.body.dataset.theme=light?'light':'dark';if(light){document.documentElement.style.setProperty('--bg','#eef4fb');document.documentElement.style.setProperty('--panel','#ffffff');document.documentElement.style.setProperty('--panel2','#e8f0fa');document.documentElement.style.setProperty('--line','#c5d4e7');document.documentElement.style.setProperty('--line2','#8fa9ca');document.documentElement.style.setProperty('--text','#14253b');document.documentElement.style.setProperty('--muted','#536b88');document.body.style.background='#eaf1fa'}else{location.reload()}};
+$('statsBtn').onclick=showStats;$('historyMode').onclick=showStats;$('learnMode').onclick=learn;$('customMode').onclick=custom;$('playMode').onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('selected'));$('playMode').classList.add('selected');setStatus('Chọn một ô rồi nhập số từ 1 đến 9.')};$('settingsBtn').onclick=$('settingsMode').onclick=()=>showModal('Cài đặt','<p>• Bật “Tự động cập nhật ứng viên” để xóa ứng viên không hợp lệ khi điền số.</p><p>• Bật “Tô lỗi” để phát hiện số trùng.</p><p>• Dùng phím 1–9 để nhập, Backspace để xóa, mũi tên để di chuyển, N để bật/tắt bút chì, Ctrl+Z để hoàn tác.</p>');$('homeBtn').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});$('blankRange').oninput=()=>{$('blankLabel').textContent=$('blankRange').value};document.querySelectorAll('input[name="difficulty"]').forEach(r=>r.addEventListener('change',chooseDifficulty));window.addEventListener('keydown',keyHandler);
+if(!loadGame())makePuzzle();
+})();
+</script>
+</body></html>
